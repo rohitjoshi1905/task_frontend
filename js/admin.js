@@ -230,7 +230,7 @@ async function downloadExcel() {
     
     const token = localStorage.getItem('firebaseToken');
     if (!token) {
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';
         return;
     }
 

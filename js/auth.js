@@ -10,7 +10,7 @@ function checkAuth(requiredRole = null) {
     const role = localStorage.getItem("userRole");
     
     if (!token) {
-        window.location.href = "login.html";
+        window.location.href = "index.html";
         return;
     }
     
@@ -36,5 +36,5 @@ function clearSession() {
     localStorage.removeItem("firebaseToken");
     localStorage.removeItem("userRole");
     localStorage.removeItem("userUid");
-    window.location.href = "login.html";
+    window.location.href = "index.html";
 }
