@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Planner</title>
+    <link rel="stylesheet" href="css/style.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>checkAuth('user');</script>
+</head>
+<body>
+    <div class="spreadsheet-container">
+        <header>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <img src="https://www.gstatic.com/images/branding/product/1x/sheets_2020q4_48dp.png" width="30">
+                <h2 id="sheet-title">Task Planner 2026</h2>
+            </div>
+            
+            <div class="toolbar-actions">
+                <a href="history.html" class="btn btn-secondary">View History</a>
+                <span id="welcome-msg" style="font-size:13px; color:#555; margin-right:10px;"></span>
+                <button onclick="logout()" class="btn btn-danger">Logout</button>
+            </div>
+        </header>
+
+        <div class="grid-wrapper">
+            <table id="spreadsheet-table">
+                <thead>
+                    <tr>
+                        <th class="col-planner">Planner</th>
+                        <th class="col-date">Due Date</th>
+                        <th class="col-owner">Owner</th>
+                        <th class="col-status">Status</th>
+                        <th class="col-website">Assign Website</th>
+                        <th class="col-task-no">Task Assign No</th>
+                        <th class="col-other">Other Assign Tasks</th>
+                        <th class="col-updates">Tasks Updates</th>
+                        <th class="col-additional">Additional</th>
+                        <th class="col-pages">Total Pages</th>
+                        <th class="col-action">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="grid-body">
+                    <!-- Rows will be injected here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

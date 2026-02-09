@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users - Task Planner</title>
+    <link rel="stylesheet" href="css/style.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>checkAuth('admin');</script>
+</head>
+<body>
+    <div class="spreadsheet-container">
+        <header>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <img src="https://www.gstatic.com/images/branding/product/1x/admin_2020q4_48dp.png" width="30">
+                <h2 id="sheet-title">Manage Users</h2>
+            </div>
+            
+            <div class="toolbar-actions">
+                <button onclick="window.location.href='admin.html'" class="btn btn-secondary" style="margin-right: 10px;">Back to Dashboard</button>
+                <button onclick="openCreateUser()" class="btn btn-primary">Create New User</button>
+                <button onclick="logout()" class="btn btn-danger">Logout</button>
+            </div>
+        </header>
+
+        <div class="grid-wrapper" style="margin-top: 20px;">
+            <table id="users-table">
+                <thead>
+                    <tr>
+                        <th style="width: 20%; text-align:left; padding-left:15px;">Name</th>
+                        <th style="width: 25%; text-align:left; padding-left:15px;">Email</th>
+                        <th style="width: 20%; text-align:left; padding-left:15px;">Password</th>
+                        <th style="width: 20%; text-align:left; padding-left:15px;">UID</th>
+                        <th style="width: 15%; text-align:center;">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="user-list-body">
+                    <!-- User list -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Create User Modal -->
+    <div id="create-user-modal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:100;">
+        <div class="modal-content" style="max-width: 400px; margin-top: 100px;">
+            <h3 style="margin-top:0;">Create New User</h3>
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" id="new-name" required style="width:100%; padding:8px; margin-bottom:10px;">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="new-email" required style="width:100%; padding:8px; margin-bottom:10px;" autocomplete="off">
+            </div>
+            <div class="form-group" style="position: relative;">
+                <label>Password</label>
+                <div style="display:flex; align-items:center;">
+                    <input type="password" id="new-password" required style="width:100%; padding:8px; margin-bottom:15px; padding-right: 40px;" autocomplete="new-password">
+                    <span onclick="togglePasswordVisibility()" style="cursor:pointer; position: absolute; right: 10px; top: 38px; color:#666; user-select:none;">
+                        👁️
+                    </span>
+                </div>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button onclick="closeModal('create-user-modal')" class="btn btn-secondary">Cancel</button>
+                <button onclick="createUser()" class="btn btn-primary">Create User</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/manage_users.js"></script>
+</body>
+</html>

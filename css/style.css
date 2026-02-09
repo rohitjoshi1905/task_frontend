@@ -1,0 +1,562 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa;
+    color: #333;
+    overflow: hidden; /* Prevent body scroll, handle inside container */
+}
+
+/* Spreadsheet Container */
+.spreadsheet-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header (Toolbar) */
+header {
+    background: #fff;
+    padding: 10px 20px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    flex-shrink: 0;
+}
+
+h2 { margin: 0; font-size: 18px; font-weight: 600; }
+
+.toolbar-actions { display: flex; gap: 10px; }
+
+/* Grid Wrapper */
+.grid-wrapper {
+    flex-grow: 1;
+    overflow: auto; /* Enable scrolling */
+    position: relative;
+    background: #fff;
+}
+
+/* Table Styles */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    table-layout: fixed; /* Fixed column widths */
+    min-width: 1500px; /* Ensure horizontal scroll */
+}
+
+th, td {
+    border: 1px solid #e0e0e0;
+    padding: 8px 4px; /* Some padding for spacing */
+    min-height: 40px;
+    font-size: 13px;
+    vertical-align: top;
+    box-sizing: border-box;
+}
+
+/* Sticky Header */
+
+/* Sticky Header */
+th {
+    background-color: #4CAF50; /* Green */
+    color: white;
+    font-weight: 600;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-bottom: 2px solid #ccc;
+    padding: 5px;
+}
+
+th.col-pages {
+    background-color: #f44336; /* Red */
+}
+
+/* Input Styles (Inline Editing) */
+td input, td select, td textarea {
+    width: 100%;
+    height: 100%;
+    border: none;
+    padding: 0 8px;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: inherit;
+    background: transparent;
+    outline: none;
+}
+
+td input:focus, td select:focus {
+    box-shadow: inset 0 0 0 2px #1a73e8; /* Google Sheets focus style */
+    background: #fff;
+}
+
+/* Read-only cells */
+td.readonly {
+    background-color: #f9f9f9;
+    color: #555;
+    padding: 0 8px; /* Add padding back for text */
+    display: table-cell;
+    vertical-align: middle;
+}
+
+/* Status Colors */
+.status-pending { color: #f57c00; font-weight: 500; }
+.status-completed { color: #2e7d32; font-weight: 500; }
+
+/* Footer (Total) */
+.grid-footer {
+    background: #f1f3f4;
+    border-top: 2px solid #ccc;
+    padding: 10px 20px;
+    font-weight: bold;
+    display: flex;
+    justify-content: flex-end;
+    gap: 20px;
+    flex-shrink: 0;
+}
+
+/* Login Page New Styles */
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f2f5;
+    font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
+}
+
+.login-card {
+    background: #fff;
+    padding: 48px 40px 36px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    width: 100%;
+    max-width: 450px;
+    box-sizing: border-box;
+}
+
+.login-card h2 {
+    text-align: center;
+    color: #202124;
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #202124;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 13px 15px;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    font-size: 16px;
+    color: #202124;
+    box-sizing: border-box;
+    transition: border 0.2s;
+}
+
+.form-group input:focus {
+    border-color: #1a73e8;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(26,115,232,0.2);
+}
+
+
+/* Login Button */
+.login-card .btn-primary {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+/* Hide Number Input Spinners */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+input[type=number] {
+  -moz-appearance: textfield; /* Firefox */
+  appearance: textfield; /* Standard */
+}
+
+/* Button Improvements */
+/* Modern Button Styles */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid transparent;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #1a73e8 0%, #1557b0 100%);
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #1557b0 0%, #0d47a1 100%);
+    box-shadow: 0 4px 8px rgba(26,115,232,0.3);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background-color: #ffffff;
+    color: #3c4043;
+    border: 1px solid #dadce0;
+    box-shadow: 0 1px 2px rgba(60,64,67,0.1);
+}
+
+.btn-secondary:hover {
+    background-color: #f1f3f4;
+    color: #202124;
+    border-color: #d2d5d9;
+    box-shadow: 0 2px 4px rgba(60,64,67,0.15);
+    transform: translateY(-1px);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #d93025 0%, #b31412 100%);
+    color: white;
+    border: none;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, #b31412 0%, #8a0e0b 100%);
+    box-shadow: 0 4px 8px rgba(217,48,37,0.3);
+    transform: translateY(-1px);
+}
+
+.btn-sm {
+    padding: 6px 16px;
+    font-size: 12px;
+    border-radius: 6px;
+}
+
+
+/* Specific Column Widths */
+th.col-planner { width: 100px; }
+th.col-date { width: 100px; }
+th.col-owner { width: 200px; }
+th.col-status { width: 120px; }
+th.col-website { width: 200px; }
+th.col-task-no { width: 100px; }
+th.col-other { width: 250px; }
+th.col-updates { width: 400px; } /* Wide for details */
+th.col-additional { width: 200px; }
+th.col-pages { width: 100px; }
+/* Multi-select Filter */
+.multiselect {
+  width: 200px;
+  position: relative;
+  display: inline-block;
+}
+
+.selectBox {
+  position: relative;
+}
+
+.selectBox select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.overSelect {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+
+#checkboxes {
+  display: none;
+  border: 1px solid #ccc;
+  position: absolute;
+  background-color: white;
+  z-index: 100;
+  width: 100%;
+  max-height: 400px; /* Increased height */
+  overflow-y: auto;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+#checkboxes label {
+  display: block;
+  padding: 5px 10px;
+}
+
+#checkboxes label:hover {
+  background-color: #1e90ff;
+  color: white;
+}
+
+/* Bigger Actions */
+th.col-action { width: 140px; }
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 13px;
+    margin: 2px;
+}
+
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    position: relative;
+    z-index: 101;
+}
+
+/* Close Button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Mobile Responsiveness */
+/* Filter Bar */
+/* Modern Inputs */
+.form-group input, 
+.form-group select, 
+.form-group textarea,
+#filter-date {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: #3c4043;
+    background-color: #fff;
+    border: 1px solid #dadce0;
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.01);
+    appearance: none; /* Remove default styling */
+    -webkit-appearance: none;
+}
+
+.form-group input:focus, 
+.form-group select:focus, 
+.form-group textarea:focus,
+#filter-date:focus {
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 3px rgba(26,115,232,0.15);
+    outline: none;
+}
+
+/* Custom Select Arrow for filter-date if needed, but browser default date picker is tricky to style fully without libraries. 
+   We just ensure the box itself looks good. */
+   
+#filter-date {
+    height: 42px; /* Match button height approx */
+    cursor: pointer;
+    font-family: inherit;
+}
+
+/* Filter Bar Improvements */
+.filter-bar {
+    padding: 12px 20px;
+    background: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+
+/* Make User Select Wider */
+.multiselect {
+  width: 350px; /* Increased from 220px */
+}
+
+.selectBox select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #3c4043;
+  height: 42px; /* Match buttons */
+  cursor: pointer;
+}
+
+/* Make Date Picker Smaller */
+#filter-date {
+    width: auto; /* Allow it to shrink */
+    min-width: 150px; /* Minimum responsive width */
+    max-width: 180px; /* Prevent it from being too long */
+    height: 42px;
+    cursor: pointer;
+    font-family: inherit;
+}
+/* Input Wrapper */
+.input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding-right: 48px; /* Space for icon */
+    box-sizing: border-box; /* Ensure padding doesn't affect width */
+}
+
+/* Password Toggle Icon */
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent !important;
+    border: none !important;
+    padding: 8px; /* Larger hit area */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #5f6368;
+    transition: color 0.2s, background-color 0.2s;
+    border-radius: 50%;
+    z-index: 10;
+    outline: none;
+    height: 36px;
+    width: 36px;
+}
+
+.password-toggle:hover {
+    color: #1a73e8;
+    background-color: rgba(26,115,232,0.1) !important;
+}
+
+.password-toggle svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+    display: block; /* Remove default inline spacing */
+}
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    /* Header/Toolbar */
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .toolbar-actions {
+        flex-wrap: wrap;
+        width: 100%;
+    }
+    
+    .toolbar-actions button, .toolbar-actions a {
+        flex: 1; /* evenly distribute buttons */
+        margin-right: 0 !important; /* Reset inline margins */
+    }
+    
+    #welcome-msg {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 5px;
+        order: -1; /* Move to top of actions */
+    }
+
+    /* Filters */
+    .filter-bar { 
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .multiselect {
+        width: 100%;
+    }
+    
+    #filter-date {
+        width: 100%;
+        box-sizing: border-box; 
+    }
+    
+    /* Buttons in filter row */
+    .filter-bar button {
+        width: 100%;
+        margin-left: 0 !important;
+        margin-top: 5px;
+    }
+
+    /* Modals */
+    .modal > div { /* The inner modal content div */
+        width: 90% !important;
+        margin: 20px auto !important;
+        max-width: none;
+    }
+    
+    /* Table font size for better fit */
+    th, td {
+        font-size: 11px;
+        padding: 4px 2px;
+    }
+    
+    .btn-sm {
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+}

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History - Task Planner</title>
+    <link rel="stylesheet" href="css/style.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>checkAuth('user');</script>
+</head>
+<body>
+    <div class="spreadsheet-container">
+        <header>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <img src="https://www.gstatic.com/images/branding/product/1x/sheets_2020q4_48dp.png" width="30">
+                <h2 id="sheet-title">My Task History</h2>
+            </div>
+            
+            <div class="toolbar-actions">
+                <a href="dashboard.html" class="btn btn-secondary">Back to Dashboard</a>
+                <button onclick="logout()" class="btn btn-danger">Logout</button>
+            </div>
+        </header>
+
+        <!-- Filters -->
+        <!-- Filters -->
+        <div class="filter-bar">
+            <label>Filter by Date:</label>
+            <input type="date" id="history-date-filter" style="border: 1px solid #ccc; padding: 7px; border-radius: 4px;">
+            <button onclick="loadUserHistory()" class="btn btn-primary">Apply</button>
+            <button onclick="clearFilter()" class="btn btn-secondary">Clear</button>
+        </div>
+
+        <div class="grid-wrapper">
+            <table id="history-table">
+                <thead>
+                    <tr>
+                        <th class="col-planner">Planner</th>
+                        <th class="col-date">Date</th>
+                        <th class="col-owner">Owner</th>
+                        <th class="col-status">Status</th>
+                        <th class="col-website">Assign Website</th>
+                        <th class="col-task-no">Task No</th>
+                        <th class="col-other">Other Tasks</th>
+                        <th class="col-updates">Tasks Updates</th>
+                        <th class="col-additional">Additional</th>
+                        <th class="col-pages">Pages</th>
+                    </tr>
+                </thead>
+                <tbody id="history-body">
+                    <!-- Rows will be injected here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="js/history.js"></script>
+</body>
+</html>
