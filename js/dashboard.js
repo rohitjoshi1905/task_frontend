@@ -1,138 +1,261 @@
+// Data storage
+let todayTask = null;
+let previousTask = null;
+let todayStr = '';
+let previousStr = '';
+let missedDateStr = ''; // Date that was missed
+
 document.addEventListener('DOMContentLoaded', async () => {
     const welcomeMsg = document.getElementById('welcome-msg');
     const email = localStorage.getItem("userName");
     if (email) welcomeMsg.textContent = email;
 
-    await loadSpreadsheet();
+    await loadTasks();
+    
+    // Check for missed entries after loading
+    await checkMissedEntry();
+    
+    // Date selector event listeners
+    document.getElementById('date-today').addEventListener('change', () => populateForm('today'));
+    document.getElementById('date-previous').addEventListener('change', () => populateForm('previous'));
+    
+    // Form submit
+    document.getElementById('task-form').addEventListener('submit', saveTask);
+    
+    // Status color change
+    document.getElementById('f-status').addEventListener('change', updateStatusColor);
+    
+    // Missed day modal buttons
+    document.getElementById('missed-day-yes').addEventListener('click', onMissedDayYes);
+    document.getElementById('missed-day-no').addEventListener('click', onMissedDayNo);
 });
 
-async function loadSpreadsheet() {
-    const tbody = document.getElementById('grid-body');
-    tbody.innerHTML = '<tr><td colspan="11" style="text-align:center; padding:20px;">Loading today\'s task...</td></tr>';
-    
-    // Only Fetch Today
-    const todayRes = await fetchWithAuth('/api/tasks/today');
-    
-    if (todayRes.ok) {
-        const todayDate = new Date().toISOString().split('T')[0];
-        let todayTask = todayRes.data.task;
-        
-        if (!todayRes.data.exists) {
-            todayTask = {
-                date: todayDate,
-                planner: new Date().toLocaleDateString('en-US', { weekday: 'long' }),
-                owner_name: localStorage.getItem("userName") || 'Me',
-                status: 'Pending',
-                assign_website: '',
-                task_assign_no: '',
-                other_tasks: '',
-                task_updates: '',
-                additional: '',
-                note: '',
-                total_pages_done: 0,
-                is_today: true
-            };
-        } else {
-            todayTask.is_today = true;
-        }
+// --- Missed Day Logic ---
 
-        renderGrid([todayTask]); // Render only one row
-        
+function getPreviousWorkDay(fromDate) {
+    const d = new Date(fromDate);
+    const dayOfWeek = d.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+    
+    if (dayOfWeek === 0) {
+        // Today is Sunday -> skip check (return null)
+        return null;
+    } else if (dayOfWeek === 1) {
+        // Today is Monday -> previous work day is Saturday
+        d.setDate(d.getDate() - 2);
     } else {
-        tbody.innerHTML = '<tr><td colspan="11" style="color:red; text-align:center;">Failed to load data.</td></tr>';
+        // Tue-Sat -> previous work day is yesterday
+        d.setDate(d.getDate() - 1);
+    }
+    
+    return d.toISOString().split('T')[0];
+}
+
+async function checkMissedEntry() {
+    const today = new Date();
+    const prevWorkDay = getPreviousWorkDay(today);
+    
+    // If today is Sunday, no check needed
+    if (!prevWorkDay) return;
+    
+    missedDateStr = prevWorkDay;
+    
+    // Check if user already dismissed this date
+    if (localStorage.getItem(`missedDay_skipped_${prevWorkDay}`)) {
+        return;
+    }
+    
+    try {
+        const res = await fetchWithAuth(`/api/tasks/today?date=${prevWorkDay}`);
+        if (res && res.ok && res.data && res.data.exists) {
+            // Task exists for previous work day, no alert needed
+            return;
+        }
+        
+        // No task found - show the missed day modal
+        const dayName = new Date(prevWorkDay).toLocaleDateString('en-US', { weekday: 'long' });
+        const formatted = new Date(prevWorkDay).toLocaleDateString('en-GB', { 
+            day: '2-digit', 
+            month: 'short', 
+            year: 'numeric' 
+        });
+        
+        document.getElementById('missed-day-message').textContent = 
+            `You haven't filled your task for ${dayName}, ${formatted}. Do you want to fill it now?`;
+        document.getElementById('missed-day-modal').style.display = 'flex';
+        
+    } catch (e) {
+        console.warn("Failed to check missed entry:", e);
     }
 }
 
-function renderGrid(tasks) {
-    const tbody = document.getElementById('grid-body');
-    tbody.innerHTML = '';
+function onMissedDayYes() {
+    // Hide modal
+    document.getElementById('missed-day-modal').style.display = 'none';
     
-    tasks.forEach(task => {
-        const tr = document.createElement('tr');
-        const ownerName = localStorage.getItem("userName") || 'Me';
+    // Load the missed date into "Previous" slot
+    previousStr = missedDateStr;
+    previousTask = createEmptyTask(missedDateStr);
+    
+    // Update label
+    document.getElementById('label-previous').textContent = `Previous (${previousStr})`;
+    
+    // Select "Previous" radio and populate
+    document.getElementById('date-previous').checked = true;
+    populateForm('previous');
+}
 
-        if (task.is_today) {
-            // Editable Row (Today)
-            tr.innerHTML = `
-                <td class="readonly">${task.planner || '-'}</td>
-                <td class="readonly">${task.date}</td>
-                <td class="readonly">${ownerName}</td>
-                <td>
-                    <select id="t-status">
-                        <option value="Pending" ${task.status === 'Pending' ? 'selected' : ''}>Pending</option>
-                        <option value="In Progress" ${task.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
-                        <option value="Completed" ${task.status === 'Completed' ? 'selected' : ''}>Completed</option>
-                    </select>
-                </td>
-                <td><textarea id="t-website" rows="1" oninput="autoResize(this)">${task.assign_website || ''}</textarea></td>
-                <td><textarea id="t-task-no" rows="1" oninput="autoResize(this)">${task.task_assign_no || ''}</textarea></td>
-                <td><textarea id="t-other" rows="1" oninput="autoResize(this)">${task.other_tasks || ''}</textarea></td>
-                <td><textarea id="t-updates" rows="1" oninput="autoResize(this)">${task.task_updates || ''} \n ${task.note || ''}</textarea></td>
-                <td><textarea id="t-additional" rows="1" oninput="autoResize(this)">${task.additional || ''}</textarea></td>
-                <td><input type="number" id="t-pages" value="${task.total_pages_done || 0}"></td>
-                <td style="text-align:center;">
-                    <button onclick="saveToday()" class="btn btn-primary">Save</button>
-                </td>
-            `;
-            tr.style.backgroundColor = "#fff"; 
-            tr.style.border = "2px solid #1a73e8"; 
-            
-            // Auto-resize on initial load (slight delay ensuring DOM is ready)
-            setTimeout(() => {
-                const textareas = tr.querySelectorAll('textarea');
-                textareas.forEach(ta => autoResize(ta));
-            }, 0);
-            
+function onMissedDayNo() {
+    // Hide modal, stay on Today
+    document.getElementById('missed-day-modal').style.display = 'none';
+    
+    // Remember dismissal so popup doesn't show again for this date
+    localStorage.setItem(`missedDay_skipped_${missedDateStr}`, 'true');
+}
+
+// --- End Missed Day Logic ---
+
+function updateStatusColor() {
+    const select = document.getElementById('f-status');
+    const value = select.value;
+    
+    // Remove all status classes
+    select.classList.remove('status-not-started', 'status-in-progress', 'status-completed');
+    
+    // Add appropriate class
+    if (value === 'Not Started') {
+        select.classList.add('status-not-started');
+    } else if (value === 'In Progress') {
+        select.classList.add('status-in-progress');
+    } else if (value === 'Completed') {
+        select.classList.add('status-completed');
+    }
+}
+
+async function loadTasks() {
+    const today = new Date();
+    todayStr = today.toISOString().split('T')[0];
+    
+    // Fetch Today
+    try {
+        const todayRes = await fetchWithAuth(`/api/tasks/today?date=${todayStr}`);
+        if (todayRes && todayRes.ok && todayRes.data && todayRes.data.exists && todayRes.data.task) {
+            todayTask = todayRes.data.task;
         } else {
-            // Read-only Row (History)
-            tr.innerHTML = `
-                <td class="readonly">${task.planner || '-'}</td>
-                <td class="readonly">${task.date}</td>
-                <td class="readonly">${ownerName}</td>
-                <td class="readonly">
-                    <span class="${task.status === 'Completed' ? 'status-completed' : 'status-pending'}">
-                        ${task.status}
-                    </span>
-                </td>
-                <td class="readonly"><div style="white-space: pre-wrap;">${task.assign_website || ''}</div></td>
-                <td class="readonly"><div style="white-space: pre-wrap;">${task.task_assign_no || ''}</div></td>
-                <td class="readonly"><div style="white-space: pre-wrap;">${task.other_tasks || ''}</div></td>
-                <td class="readonly"><div style="white-space: pre-wrap;">${task.task_updates || ''} ${task.note ? '\n' + task.note : ''}</div></td>
-                <td class="readonly"><div style="white-space: pre-wrap;">${task.additional || ''}</div></td>
-                <td class="readonly" style="text-align:center;">${task.total_pages_done || 0}</td>
-                <td class="readonly"></td>
-            `;
+            todayTask = createEmptyTask(todayStr);
         }
-        
-        tbody.appendChild(tr);
-    });
+    } catch (e) {
+        console.warn("Failed to fetch today task:", e);
+        todayTask = createEmptyTask(todayStr);
+    }
+    
+    // Fetch Previous
+    try {
+        const prevRes = await fetchWithAuth(`/api/tasks/previous?before_date=${todayStr}`);
+        if (prevRes && prevRes.ok && prevRes.data && prevRes.data.exists && prevRes.data.task) {
+            previousTask = prevRes.data.task;
+            previousStr = previousTask.date;
+        } else {
+            // Fallback to previous work day (skip Sunday)
+            const prevWork = getPreviousWorkDay(today);
+            previousStr = prevWork || todayStr;
+            previousTask = createEmptyTask(previousStr);
+        }
+    } catch (e) {
+        console.warn("Failed to fetch previous task:", e);
+        const prevWork = getPreviousWorkDay(new Date());
+        previousStr = prevWork || todayStr;
+        previousTask = createEmptyTask(previousStr);
+    }
+    
+    // Update labels
+    document.getElementById('label-today').textContent = `Today (${todayStr})`;
+    document.getElementById('label-previous').textContent = `Previous (${previousStr})`;
+    
+    // Populate form with Today by default
+    populateForm('today');
 }
 
-function autoResize(elem) {
-    elem.style.height = 'auto'; // Reset height
-    elem.style.height = (elem.scrollHeight) + 'px'; // Set to scroll height
+function createEmptyTask(dateStr) {
+    return {
+        date: dateStr,
+        planner: new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long' }),
+        owner_name: localStorage.getItem("userName") || 'Me',
+        status: 'Not Started',
+        assign_website: '',
+        task_assign_no: '',
+        other_tasks: '',
+        task_updates: '',
+        additional: '',
+        note: '',
+        total_pages_done: 0
+    };
 }
 
-async function saveToday() {
+function populateForm(which) {
+    const task = which === 'today' ? todayTask : previousTask;
+    const dateStr = which === 'today' ? todayStr : previousStr;
+    
+    // Update info display
+    document.getElementById('display-day').textContent = task.planner || new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long' });
+    document.getElementById('display-date').textContent = dateStr;
+    document.getElementById('display-owner').textContent = task.owner_name || localStorage.getItem("userName") || 'Me';
+    
+    // Populate form fields
+    document.getElementById('f-status').value = task.status || 'Not Started';
+    document.getElementById('f-pages').value = task.total_pages_done || 0;
+    document.getElementById('f-website').value = task.assign_website || '';
+    document.getElementById('f-task-no').value = task.task_assign_no || '';
+    document.getElementById('f-other').value = task.other_tasks || '';
+    document.getElementById('f-updates').value = (task.task_updates || '') + (task.note ? '\n' + task.note : '');
+    document.getElementById('f-additional').value = task.additional || '';
+    
+    // Update status color
+    updateStatusColor();
+}
+
+function getSelectedDate() {
+    const isToday = document.getElementById('date-today').checked;
+    return isToday ? todayStr : previousStr;
+}
+
+async function saveTask(e) {
+    e.preventDefault();
+    
+    const selectedDate = getSelectedDate();
+    
     const payload = {
-        status: document.getElementById('t-status').value,
-        assign_website: document.getElementById('t-website').value,
-        task_assign_no: document.getElementById('t-task-no').value,
-        total_pages_done: parseInt(document.getElementById('t-pages').value) || 0,
-        other_tasks: document.getElementById('t-other').value,
-        task_updates: document.getElementById('t-updates').value, // This now captures the wide text
-        additional: document.getElementById('t-additional').value,
-        note: "" // Merged into updates or unused for now based on UI column count
+        date: selectedDate,
+        status: document.getElementById('f-status').value,
+        assign_website: document.getElementById('f-website').value,
+        task_assign_no: document.getElementById('f-task-no').value,
+        total_pages_done: parseInt(document.getElementById('f-pages').value) || 0,
+        other_tasks: document.getElementById('f-other').value,
+        task_updates: document.getElementById('f-updates').value,
+        additional: document.getElementById('f-additional').value,
+        note: ""
     };
 
-    const response = await fetchWithAuth('/api/tasks/save', {
-        method: 'POST',
-        body: JSON.stringify(payload)
-    });
+    try {
+        const response = await fetchWithAuth('/api/tasks/save', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        });
 
-    if (response.ok) {
-        alert("Saved successfully!");
-    } else {
-        alert("Failed to save.");
+        if (response && response.ok) {
+            alert("Saved successfully!");
+            
+            // Update local cache
+            if (selectedDate === todayStr) {
+                todayTask = { ...todayTask, ...payload };
+            } else {
+                previousTask = { ...previousTask, ...payload };
+            }
+        } else {
+            alert("Failed to save.");
+        }
+    } catch (err) {
+        console.error("Save error:", err);
+        alert("Error saving task: " + err.message);
     }
 }
+

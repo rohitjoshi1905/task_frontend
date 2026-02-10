@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Task Planner</title>
+    <title>JRS INNOVATION LLC - Admin Dashboard</title>
     <link rel="stylesheet" href="css/style.css">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -14,57 +14,81 @@
     <script src="js/auth.js"></script>
     <script>checkAuth('admin');</script>
 </head>
-<body>
-    <div class="spreadsheet-container">
-        <header>
+<body class="admin-page">
+    <div class="admin-container">
+        <header class="admin-header">
             <div style="display:flex; align-items:center; gap:10px;">
                 <img src="https://www.gstatic.com/images/branding/product/1x/admin_2020q4_48dp.png" width="30">
-                <h2 id="sheet-title">Admin Dashboard</h2>
+                <h2>Admin Dashboard</h2>
             </div>
             
             <div class="toolbar-actions">
-                <button onclick="window.location.href='manage_users.html'" class="btn btn-secondary" style="margin-right: 10px;">Manage Users</button>
+                <button onclick="window.location.href='manage_users.html'" class="btn btn-secondary">Manage Users</button>
                 <button onclick="logout()" class="btn btn-danger">Logout</button>
             </div>
         </header>
 
         <!-- Filters -->
-        <!-- Filters -->
-        <div class="filter-bar">
-            <div class="multiselect">
-                <div class="selectBox" onclick="showCheckboxes()">
-                    <select>
-                        <option>Select Users</option>
-                    </select>
-                    <div class="overSelect"></div>
+        <div class="admin-filters">
+            <div class="filter-left">
+                <div class="multiselect">
+                    <div class="selectBox" onclick="showCheckboxes()">
+                        <select>
+                            <option>Select Users</option>
+                        </select>
+                        <div class="overSelect"></div>
+                    </div>
+                    <div id="checkboxes">
+                        <!-- Populated by JS -->
+                    </div>
                 </div>
-                <div id="checkboxes">
-                    <!-- Populated by JS -->
+                
+                <!-- Date Range: From -->
+                <div class="date-picker-wrapper" onclick="document.getElementById('filter-date-from').showPicker()">
+                    <div class="date-picker-btn">
+                        <span class="date-icon">📅</span>
+                        <span id="date-label-from">From Date</span>
+                    </div>
+                    <input type="date" id="filter-date-from" onchange="updateDateLabelFrom()">
+                </div>
+                
+                <!-- Date Range: To -->
+                <div class="date-picker-wrapper" onclick="document.getElementById('filter-date-to').showPicker()">
+                    <div class="date-picker-btn">
+                        <span class="date-icon">📅</span>
+                        <span id="date-label-to">To Date</span>
+                    </div>
+                    <input type="date" id="filter-date-to" onchange="updateDateLabelTo()">
+                </div>
+                <button onclick="loadAdminTasks()" class="btn btn-primary">Apply Filters</button>
+                <button onclick="clearFilters()" class="btn btn-secondary">Clear Filters</button>
+                
+                <!-- Total Pages Counter -->
+                <div class="total-pages-box">
+                    <span class="total-label">Total Pages:</span>
+                    <span id="total-pages-count" class="total-count">0</span>
                 </div>
             </div>
-            
-            <input type="date" id="filter-date" placeholder="Filter by Date">
-            <button onclick="loadAdminTasks()" class="btn btn-primary">Apply Filters</button>
-            <button onclick="clearFilters()" class="btn btn-secondary">Clear Filters</button>
-            <button onclick="downloadExcel()" class="btn btn-secondary" style="margin-left: auto;">Download Excel</button>
+            <div class="filter-right">
+                <button onclick="downloadExcel()" class="btn btn-success">📥 Download Excel</button>
+            </div>
         </div>
 
-        <div class="grid-wrapper">
-            <table id="admin-table">
+        <div class="admin-table-wrapper">
+            <table id="admin-table" class="modern-table">
                 <thead>
                     <tr>
-                        <th class="col-planner">Planner</th>
-                        <th class="col-date">Date</th>
-                        <th class="col-owner">User</th>
-                        <th class="col-status">Status</th>
-                        <th class="col-website">Website</th>
-                        <th class="col-task-no">Task No</th>
-                        <th class="col-other">Other Tasks</th>
-                        <th class="col-updates">Updates</th>
-                        <th class="col-additional">Additional</th>
-                        <th class="col-note">Note</th>
-                        <th class="col-pages">Total Pages</th>
-                        <th class="col-action" style="width: 160px;">Action</th>
+                        <th>Planner</th>
+                        <th>Date</th>
+                        <th>Owner</th>
+                        <th>Status</th>
+                        <th>Assign Website</th>
+                        <th>Task Assign</th>
+                        <th>Other Tasks</th>
+                        <th>Task Updates</th>
+                        <th>Additional Work</th>
+                        <th>Total Page Created</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody id="admin-body">
@@ -78,19 +102,19 @@
     
     <!-- Create User Modal -->
     <div id="create-user-modal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:100;">
-        <div style="background:white; width:350px; margin: 100px auto; padding:25px; border-radius:8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            <h3 style="margin-top:0;">Create New User</h3>
+        <div style="background:white; width:350px; margin: 100px auto; padding:25px; border-radius:12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+            <h3 style="margin-top:0; color:#1e3c72;">Create New User</h3>
             <div class="form-group">
                 <label>Name</label>
-                <input type="text" id="new-name" required style="width:100%; padding:8px; margin-bottom:10px;">
+                <input type="text" id="new-name" required style="width:100%; padding:10px; margin-bottom:12px; border:2px solid #e0e0e0; border-radius:8px;">
             </div>
             <div class="form-group">
                 <label>Email</label>
-                <input type="email" id="new-email" required style="width:100%; padding:8px; margin-bottom:10px;">
+                <input type="email" id="new-email" required style="width:100%; padding:10px; margin-bottom:12px; border:2px solid #e0e0e0; border-radius:8px;">
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" id="new-password" required style="width:100%; padding:8px; margin-bottom:15px;">
+                <input type="password" id="new-password" required style="width:100%; padding:10px; margin-bottom:15px; border:2px solid #e0e0e0; border-radius:8px;">
             </div>
             <div style="display:flex; justify-content:flex-end; gap:10px;">
                 <button onclick="closeModal('create-user-modal')" class="btn btn-secondary">Cancel</button>
@@ -99,34 +123,32 @@
         </div>
     </div>
 
-
-
     <!-- Edit Task Modal -->
     <div id="edit-task-modal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:100;">
-        <div style="background:white; width:450px; margin: 100px auto; padding:25px; border-radius:8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            <h3 style="margin-top:0;">Edit Task</h3>
+        <div style="background:white; width:450px; margin: 80px auto; padding:25px; border-radius:12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); max-height:80vh; overflow:auto;">
+            <h3 style="margin-top:0; color:#1e3c72;">Edit Task</h3>
             <input type="hidden" id="edit-user-id">
             <input type="hidden" id="edit-date">
             
             <div class="form-group" style="margin-bottom:15px;">
                 <label>Status</label>
-                <select id="edit-status" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px;">
-                    <option value="Pending">Pending</option>
+                <select id="edit-status" style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:8px;">
+                    <option value="Not Started">Not Started</option>
                     <option value="In Progress">In Progress</option>
                     <option value="Completed">Completed</option>
                 </select>
             </div>
             <div class="form-group" style="margin-bottom:15px;">
                 <label>Pages Done</label>
-                <input type="number" id="edit-pages" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px;">
+                <input type="number" id="edit-pages" style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:8px;">
             </div>
              <div class="form-group" style="margin-bottom:15px;">
                 <label>Website</label>
-                <textarea id="edit-website" rows="2" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px;"></textarea>
+                <textarea id="edit-website" rows="2" style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:8px;"></textarea>
             </div>
              <div class="form-group" style="margin-bottom:20px;">
                 <label>Task Updates</label>
-                <textarea id="edit-updates" rows="4" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px;"></textarea>
+                <textarea id="edit-updates" rows="4" style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:8px;"></textarea>
             </div>
             
             <div style="display:flex; justify-content:flex-end; gap:10px;">
@@ -136,6 +158,6 @@
         </div>
     </div>
 
-    <script src="js/admin.js?v=7"></script>
+    <script src="js/admin.js?v=16"></script>
 </body>
 </html>

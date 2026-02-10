@@ -11,6 +11,40 @@ function showCheckboxes() {
     }
 }
 
+// Update date label for From Date
+function updateDateLabelFrom() {
+    const dateInput = document.getElementById('filter-date-from');
+    const dateLabel = document.getElementById('date-label-from');
+    if (dateInput.value) {
+        const date = new Date(dateInput.value);
+        const formatted = date.toLocaleDateString('en-GB', { 
+            day: '2-digit', 
+            month: 'short', 
+            year: 'numeric' 
+        });
+        dateLabel.textContent = formatted;
+    } else {
+        dateLabel.textContent = 'From Date';
+    }
+}
+
+// Update date label for To Date
+function updateDateLabelTo() {
+    const dateInput = document.getElementById('filter-date-to');
+    const dateLabel = document.getElementById('date-label-to');
+    if (dateInput.value) {
+        const date = new Date(dateInput.value);
+        const formatted = date.toLocaleDateString('en-GB', { 
+            day: '2-digit', 
+            month: 'short', 
+            year: 'numeric' 
+        });
+        dateLabel.textContent = formatted;
+    } else {
+        dateLabel.textContent = 'To Date';
+    }
+}
+
 // Close checkboxes when clicking outside
 document.addEventListener('click', function(e) {
     const multiselect = document.querySelector('.multiselect');
@@ -32,7 +66,7 @@ async function loadUsers() {
         container.innerHTML = '';
         users.forEach(u => {
             container.innerHTML += `
-                <label>
+                <label onclick="event.stopPropagation()">
                     <input type="checkbox" value="${u.uid}" /> ${u.name} (${u.email})
                 </label>`;
         });
@@ -43,28 +77,18 @@ async function loadAdminTasks() {
     // Get selected users
     const checkboxes = document.querySelectorAll('#checkboxes input[type="checkbox"]:checked');
     const selectedUsers = Array.from(checkboxes).map(cb => cb.value);
-    const date = document.getElementById('filter-date').value;
+    const dateFrom = document.getElementById('filter-date-from').value;
+    const dateTo = document.getElementById('filter-date-to').value;
     
-    let url = `/api/admin/tasks?limit=100`;
-    
-    // If specific users selected, we might need multiple calls or filter client side.
-    // The backend API currently supports single user filter `?user=uid`.
-    // Let's filter client-side if multiple users are selected, or just fetch all and filter.
-    // For simplicity and performance on small dataset: fetch 100 and filter.
-    // OR: if 1 user selected, use param.
-    
-    // Better strategy for now: Fetch all (limit 100) and filter client side if users selected.
+    let url = `/api/admin/tasks?limit=500`;
     
     const tbody = document.getElementById('admin-body');
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Loading...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;">Loading...</td></tr>';
     
     // Fetch broadly
     let api_url = url;
     if (selectedUsers.length === 1) {
         api_url += `&user=${selectedUsers[0]}`;
-    }
-    if (date) {
-        api_url += `&date=${date}`;
     }
     
     const response = await fetchWithAuth(api_url);
@@ -76,15 +100,33 @@ async function loadAdminTasks() {
             tasks = tasks.filter(t => selectedUsers.includes(t.user_id));
         }
         
+        // Client-side date range filtering
+        if (dateFrom || dateTo) {
+            tasks = tasks.filter(t => {
+                const taskDate = t.date;
+                if (dateFrom && dateTo) {
+                    return taskDate >= dateFrom && taskDate <= dateTo;
+                } else if (dateFrom) {
+                    return taskDate >= dateFrom;
+                } else if (dateTo) {
+                    return taskDate <= dateTo;
+                }
+                return true;
+            });
+        }
+        
         renderGrid(tasks);
     } else {
-        tbody.innerHTML = '<tr><td colspan="7" style="color:red; text-align:center;">Failed to load tasks.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="11" style="color:red; text-align:center;">Failed to load tasks.</td></tr>';
     }
 }
 
 function clearFilters() {
-    // Clear Date
-    document.getElementById('filter-date').value = '';
+    // Clear Dates
+    document.getElementById('filter-date-from').value = '';
+    document.getElementById('filter-date-to').value = '';
+    document.getElementById('date-label-from').textContent = 'From Date';
+    document.getElementById('date-label-to').textContent = 'To Date';
     
     // Clear Checkboxes
     const checkboxes = document.querySelectorAll('#checkboxes input[type="checkbox"]');
@@ -96,8 +138,13 @@ function clearFilters() {
 
 function renderGrid(tasks) {
     const tbody = document.getElementById('admin-body');
+    
+    // Calculate total pages
+    const totalPages = tasks.reduce((sum, t) => sum + (parseInt(t.total_pages_done) || 0), 0);
+    document.getElementById('total-pages-count').textContent = totalPages;
+    
     if (tasks.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">No records found.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="11" style="text-align:center; padding:20px;">No records found.</td></tr>';
         return;
     }
     
@@ -107,23 +154,21 @@ function renderGrid(tasks) {
             <td>${t.date}</td>
             <td>
                 <strong>${t.owner_name || 'Unknown'}</strong><br>
-                <span style="font-size:11px; color:#666;">${t.user_id}</span>
+                <span style="font-size:11px; color:#666;">${t.user_id ? t.user_id.substring(0, 10) + '...' : ''}</span>
             </td>
             <td>
-                <span class="${t.status === 'Completed' ? 'status-completed' : 'status-pending'}">
-                    ${t.status}
+                <span class="status-badge ${t.status === 'Completed' ? 'completed' : t.status === 'In Progress' ? 'in-progress' : 'not-started'}">
+                    ${t.status || 'Not Started'}
                 </span>
             </td>
             <td><div style="white-space: pre-wrap;">${t.assign_website || ''}</div></td>
             <td style="text-align:center;">${t.task_assign_no || ''}</td>
             <td><div style="white-space: pre-wrap;">${t.other_tasks || ''}</div></td>
-            <td><div style="font-size:12px; white-space: pre-wrap;">${t.task_updates || ''}</div></td>
+            <td><div style="font-size:12px; white-space: pre-wrap; font-family: Consolas, monospace;">${t.task_updates || ''}</div></td>
             <td><div style="white-space: pre-wrap;">${t.additional || ''}</div></td>
-            <td><div style="white-space: pre-wrap;">${t.note || ''}</div></td>
             <td style="text-align:center; font-weight:bold;">${t.total_pages_done || 0}</td>
             <td style="text-align:center;">
-                <button onclick='openEditTask(${JSON.stringify(t).replace(/'/g, "&#39;")})' class="btn btn-secondary btn-sm" style="font-weight:bold;">EDIT</button>
-                <button onclick="deleteTask('${t.user_id}', '${t.date}')" class="btn btn-danger btn-sm" style="font-weight:bold;">DEL</button>
+                <button onclick='openEditTask(${JSON.stringify(t).replace(/'/g, "&#39;")})' class="btn btn-primary btn-sm" style="font-weight:bold;">EDIT</button>
             </td>
         </tr>
     `).join('');
@@ -272,6 +317,58 @@ async function downloadExcel() {
         console.error("Download error:", error);
         alert("An error occurred while downloading.");
     }
+}
+
+// Download Excel - export current displayed data
+function downloadExcel() {
+    const table = document.querySelector('.modern-table');
+    if (!table) {
+        alert('No data to export!');
+        return;
+    }
+    
+    const rows = table.querySelectorAll('tr');
+    if (rows.length <= 1) {
+        alert('No data to export!');
+        return;
+    }
+    
+    let csv = [];
+    
+    // Get headers
+    const headers = [];
+    rows[0].querySelectorAll('th').forEach(th => {
+        headers.push('"' + th.textContent.trim().replace(/"/g, '""') + '"');
+    });
+    csv.push(headers.join(','));
+    
+    // Get data rows
+    for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        const cols = row.querySelectorAll('td');
+        if (cols.length === 0) continue;
+        
+        const rowData = [];
+        cols.forEach(td => {
+            let text = td.textContent.trim().replace(/"/g, '""');
+            rowData.push('"' + text + '"');
+        });
+        csv.push(rowData.join(','));
+    }
+    
+    // Create and download file
+    const csvContent = csv.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    const today = new Date().toISOString().split('T')[0];
+    link.setAttribute('href', url);
+    link.setAttribute('download', `admin_tasks_${today}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 // Initialize
