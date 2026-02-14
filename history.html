@@ -4,10 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JRS INNOVATION LLC - Task History</title>
-    <link rel="stylesheet" href="css/style.css">
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <link rel="stylesheet" href="css/style.css?v=18">
     
     <script src="js/config.js"></script>
     <script src="js/api.js"></script>
@@ -30,14 +27,26 @@
 
         <!-- Filters -->
         <div class="history-filters">
-            <div class="filter-group">
-                <label>Filter by Date:</label>
-                <input type="date" id="history-date-filter">
+            <!-- Date Range: From -->
+            <div class="date-picker-wrapper" onclick="document.getElementById('history-date-from').showPicker()">
+                <div class="date-picker-btn">
+                    <span class="date-icon">📅</span>
+                    <span id="date-label-from">From Date</span>
+                </div>
+                <input type="date" id="history-date-from" onchange="updateHistoryDateLabel('from')">
             </div>
-            <div class="filter-buttons">
-                <button onclick="loadUserHistory()" class="btn btn-primary">Apply</button>
-                <button onclick="clearFilter()" class="btn btn-secondary">Clear</button>
+            
+            <!-- Date Range: To -->
+            <div class="date-picker-wrapper" onclick="document.getElementById('history-date-to').showPicker()">
+                <div class="date-picker-btn">
+                    <span class="date-icon">📅</span>
+                    <span id="date-label-to">To Date</span>
+                </div>
+                <input type="date" id="history-date-to" onchange="updateHistoryDateLabel('to')">
             </div>
+
+            <button onclick="loadUserHistory()" class="btn btn-primary">Apply Filters</button>
+            <button onclick="clearFilter()" class="btn btn-secondary">Clear Filters</button>
         </div>
 
         <div class="history-table-wrapper">
@@ -54,6 +63,7 @@
                         <th>Task Updates</th>
                         <th>Additional Work</th>
                         <th>Total Page Created</th>
+                        <th class="col-note">Note</th>
                     </tr>
                 </thead>
                 <tbody id="history-body">
@@ -63,6 +73,6 @@
         </div>
     </div>
 
-    <script src="js/history.js"></script>
+    <script src="js/history.js?v=4"></script>
 </body>
 </html>

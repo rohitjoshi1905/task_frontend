@@ -136,10 +136,19 @@ async function loadTasks() {
     todayStr = today.toISOString().split('T')[0];
     
     // Fetch Today
+    // Fetch Today
     try {
         const todayRes = await fetchWithAuth(`/api/tasks/today?date=${todayStr}`);
-        if (todayRes && todayRes.ok && todayRes.data && todayRes.data.exists && todayRes.data.task) {
-            todayTask = todayRes.data.task;
+        if (todayRes && todayRes.ok && todayRes.data) {
+            if (todayRes.data.task) {
+                todayTask = todayRes.data.task;
+                 // If it's a default template (exists=false), ensure status is Not Started
+                 if (!todayRes.data.exists) {
+                    todayTask.status = 'Not Started';
+                 }
+            } else {
+                 todayTask = createEmptyTask(todayStr);
+            }
         } else {
             todayTask = createEmptyTask(todayStr);
         }
@@ -206,11 +215,23 @@ function populateForm(which) {
     document.getElementById('f-website').value = task.assign_website || '';
     document.getElementById('f-task-no').value = task.task_assign_no || '';
     document.getElementById('f-other').value = task.other_tasks || '';
-    document.getElementById('f-updates').value = (task.task_updates || '') + (task.note ? '\n' + task.note : '');
+    document.getElementById('f-updates').value = task.task_updates || '';
     document.getElementById('f-additional').value = task.additional || '';
+    document.getElementById('f-note').value = task.note || '';
     
     // Update status color
     updateStatusColor();
+
+    // Update Button Text
+    const saveBtn = document.querySelector('#task-form button[type="submit"]');
+    if (task.status && task.status !== 'Not Started' && (task.task_updates || task.total_pages_done > 0 || task.additional || task.note)) {
+         saveBtn.textContent = "Edit Task";
+    } else if (task._id || (task.date && task.updated_at)) {
+         // If task object exists from DB
+         saveBtn.textContent = "Edit Task";
+    } else {
+         saveBtn.textContent = "Save Task";
+    }
 }
 
 function getSelectedDate() {
@@ -232,7 +253,7 @@ async function saveTask(e) {
         other_tasks: document.getElementById('f-other').value,
         task_updates: document.getElementById('f-updates').value,
         additional: document.getElementById('f-additional').value,
-        note: ""
+        note: document.getElementById('f-note').value
     };
 
     try {
@@ -250,6 +271,11 @@ async function saveTask(e) {
             } else {
                 previousTask = { ...previousTask, ...payload };
             }
+            
+            // Change button to Edit Task immediately
+            const saveBtn = document.querySelector('#task-form button[type="submit"]');
+            saveBtn.textContent = "Edit Task";
+
         } else {
             alert("Failed to save.");
         }

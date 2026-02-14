@@ -164,9 +164,10 @@ function renderGrid(tasks) {
             <td><div style="white-space: pre-wrap;">${t.assign_website || ''}</div></td>
             <td style="text-align:center;">${t.task_assign_no || ''}</td>
             <td><div style="white-space: pre-wrap;">${t.other_tasks || ''}</div></td>
-            <td><div style="font-size:12px; white-space: pre-wrap; font-family: Consolas, monospace;">${t.task_updates || ''}</div></td>
+            <td><div style="font-size:12px; white-space: pre-wrap;">${t.task_updates || ''}</div></td>
             <td><div style="white-space: pre-wrap;">${t.additional || ''}</div></td>
             <td style="text-align:center; font-weight:bold;">${t.total_pages_done || 0}</td>
+            <td><div class="note-cell">${t.note || ''}</div></td>
             <td style="text-align:center;">
                 <button onclick='openEditTask(${JSON.stringify(t).replace(/'/g, "&#39;")})' class="btn btn-primary btn-sm" style="font-weight:bold;">EDIT</button>
             </td>
@@ -185,7 +186,11 @@ function openEditTask(task) {
     document.getElementById('edit-status').value = task.status || 'Pending';
     document.getElementById('edit-pages').value = task.total_pages_done || 0;
     document.getElementById('edit-website').value = task.assign_website || '';
+    document.getElementById('edit-task-assign').value = task.task_assign_no || '';
+    document.getElementById('edit-other-tasks').value = task.other_tasks || '';
     document.getElementById('edit-updates').value = task.task_updates || '';
+    document.getElementById('edit-additional').value = task.additional || '';
+    document.getElementById('edit-note').value = task.note || '';
     
     document.getElementById('edit-task-modal').style.display = 'block';
 }
@@ -198,7 +203,11 @@ async function saveTaskChanges() {
         status: document.getElementById('edit-status').value,
         total_pages_done: parseInt(document.getElementById('edit-pages').value) || 0,
         assign_website: document.getElementById('edit-website').value,
-        task_updates: document.getElementById('edit-updates').value
+        task_assign_no: document.getElementById('edit-task-assign').value,
+        other_tasks: document.getElementById('edit-other-tasks').value,
+        task_updates: document.getElementById('edit-updates').value,
+        additional: document.getElementById('edit-additional').value,
+        note: document.getElementById('edit-note').value
     };
     
     const res = await fetchWithAuth(`/api/admin/task/${userId}/${date}`, {
@@ -273,7 +282,7 @@ async function downloadExcel() {
     const date = document.getElementById('filter-date').value;
     // Date is optional now
     
-    const token = localStorage.getItem('firebaseToken');
+    const token = localStorage.getItem('authToken');
     if (!token) {
         window.location.href = 'index.html';
         return;
@@ -371,8 +380,63 @@ function downloadExcel() {
     document.body.removeChild(link);
 }
 
+// Column Resizing Logic
+function enableColumnResizing() {
+    const table = document.getElementById('admin-table');
+    if (!table) return;
+    const headers = table.querySelectorAll('th');
+
+    headers.forEach(header => {
+        // Skip if already has resizer
+        if (header.querySelector('.resizer')) return;
+
+        const resizer = document.createElement('div');
+        resizer.classList.add('resizer');
+        resizer.style.height = '100%';
+        resizer.style.width = '5px';
+        resizer.style.position = 'absolute';
+        resizer.style.top = '0';
+        resizer.style.right = '0';
+        resizer.style.cursor = 'col-resize';
+        resizer.style.userSelect = 'none';
+        resizer.style.touchAction = 'none';
+        
+        header.appendChild(resizer);
+
+        let startX, startWidth;
+
+        const mouseDownHandler = function(e) {
+            e.preventDefault(); 
+            startX = e.clientX;
+            startWidth = header.offsetWidth;
+            
+            document.addEventListener('mousemove', mouseMoveHandler);
+            document.addEventListener('mouseup', mouseUpHandler);
+            resizer.classList.add('resizing');
+        };
+
+        const mouseMoveHandler = function(e) {
+            const dx = e.clientX - startX;
+            const newWidth = startWidth + dx;
+            if (newWidth > 50) {
+                header.style.width = `${newWidth}px`;
+            }
+        };
+
+        const mouseUpHandler = function() {
+            document.removeEventListener('mousemove', mouseMoveHandler);
+            document.removeEventListener('mouseup', mouseUpHandler);
+            resizer.classList.remove('resizing');
+        };
+
+        resizer.addEventListener('mousedown', mouseDownHandler);
+    });
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    loadUsers(); // Load users first for filter
+    loadUsers(); 
     loadAdminTasks();
+    // Enable resizing
+    enableColumnResizing();
 });

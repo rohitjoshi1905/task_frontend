@@ -4,10 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JRS INNOVATION LLC - Admin Dashboard</title>
-    <link rel="stylesheet" href="css/style.css">
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <link rel="stylesheet" href="css/style.css?v=21">
     
     <script src="js/config.js"></script>
     <script src="js/api.js"></script>
@@ -23,7 +20,7 @@
             </div>
             
             <div class="toolbar-actions">
-                <button onclick="window.location.href='manage_users.html'" class="btn btn-secondary">Manage Users</button>
+                <button onclick="window.location.href='manage_users.html'" class="btn btn-secondary">Manage Users and Task Assign</button>
                 <button onclick="logout()" class="btn btn-danger">Logout</button>
             </div>
         </header>
@@ -88,6 +85,7 @@
                         <th>Task Updates</th>
                         <th>Additional Work</th>
                         <th>Total Page Created</th>
+                        <th class="col-note">Note</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -146,9 +144,25 @@
                 <label>Website</label>
                 <textarea id="edit-website" rows="2" style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:8px;"></textarea>
             </div>
+            <div class="form-group" style="margin-bottom:15px;">
+                <label>Task Assign</label>
+                <input type="text" id="edit-task-assign" style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:8px;">
+            </div>
+             <div class="form-group" style="margin-bottom:15px;">
+                <label>Other Tasks</label>
+                <input type="text" id="edit-other-tasks" style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:8px;">
+            </div>
              <div class="form-group" style="margin-bottom:20px;">
                 <label>Task Updates</label>
                 <textarea id="edit-updates" rows="4" style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:8px;"></textarea>
+            </div>
+             <div class="form-group" style="margin-bottom:15px;">
+                <label>Additional Work</label>
+                <textarea id="edit-additional" rows="2" style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:8px;"></textarea>
+            </div>
+             <div class="form-group" style="margin-bottom:15px;">
+                <label>Note</label>
+                <textarea id="edit-note" rows="2" style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:8px;"></textarea>
             </div>
             
             <div style="display:flex; justify-content:flex-end; gap:10px;">
@@ -158,6 +172,6 @@
         </div>
     </div>
 
-    <script src="js/admin.js?v=16"></script>
+    <script src="js/admin.js?v=21"></script>
 </body>
 </html>

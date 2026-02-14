@@ -1,7 +1,7 @@
 // API_BASE_URL is loaded from config.js
 
 async function fetchWithAuth(endpoint, options = {}) {
-    const token = localStorage.getItem("firebaseToken");
+    const token = localStorage.getItem("authToken");
     
     const headers = {
         "Content-Type": "application/json",

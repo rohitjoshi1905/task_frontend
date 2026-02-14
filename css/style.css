@@ -9,7 +9,7 @@ body {
 
 /* Spreadsheet Container */
 .spreadsheet-container {
-    width: 100vw;
+    width: 100%;
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -43,8 +43,9 @@ h2 { margin: 0; font-size: 18px; font-weight: 600; }
 table {
     border-collapse: collapse;
     width: 100%;
+    border-collapse: collapse;
+    width: 100%;
     table-layout: fixed; /* Fixed column widths */
-    min-width: 1500px; /* Ensure horizontal scroll */
 }
 
 th, td {
@@ -276,6 +277,7 @@ th.col-other { width: 250px; }
 th.col-updates { width: 400px; } /* Wide for details */
 th.col-additional { width: 200px; }
 th.col-pages { width: 100px; }
+th.col-note { width: 300px; }
 /* Multi-select Filter */
 .multiselect {
   width: 200px;
@@ -566,7 +568,7 @@ th.col-action { width: 140px; }
    ======================================== */
 
 .dashboard-container {
-    width: 100vw;
+    width: 100%;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -785,7 +787,16 @@ th.col-action { width: 140px; }
 .form-group textarea:focus {
     outline: none;
     border-color: #667eea;
+    border-color: #667eea;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Admin Assigned Fields in Dashboard */
+#f-website, #f-task-no, #f-other {
+    background-color: #e3f2fd !important;
+    border-color: #90caf9 !important;
+    color: #0d47a1;
+    font-weight: 500;
 }
 
 /* Status Colors */
@@ -1322,7 +1333,22 @@ th.col-action { width: 140px; }
     z-index: 1000;
 }
 
-/* Admin table specific - 11 columns (same as history + Action) */
+/* Admin Container Layout */
+.admin-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden; /* Prevent body scroll */
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+}
+
+.admin-table-wrapper {
+    flex: 1;
+    overflow: auto; /* Scroll table body and horizontally */
+    padding: 0 20px 20px 20px;
+}
+
+/* Admin table specific - 12 columns */
 .admin-container .modern-table th:nth-child(1), 
 .admin-container .modern-table td:nth-child(1) { width: 80px; }  /* Planner */
 .admin-container .modern-table th:nth-child(2), 
@@ -1344,7 +1370,9 @@ th.col-action { width: 140px; }
 .admin-container .modern-table th:nth-child(10), 
 .admin-container .modern-table td:nth-child(10) { width: 80px; text-align: center; } /* Total Page Created */
 .admin-container .modern-table th:nth-child(11), 
-.admin-container .modern-table td:nth-child(11) { width: 80px; } /* Action */
+.admin-container .modern-table td:nth-child(11) { width: 300px; min-width: 300px; } /* Note */
+.admin-container .modern-table th:nth-child(12), 
+.admin-container .modern-table td:nth-child(12) { width: 100px; min-width: 100px; text-align: center; } /* Action */
 
 /* Responsive Admin */
 @media (max-width: 768px) {
@@ -1394,4 +1422,103 @@ th.col-action { width: 140px; }
     font-weight: 700;
     min-width: 30px;
     text-align: center;
+}
+
+/* History Page Filters */
+.history-page .history-filters {
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-start !important;
+    gap: 15px !important;
+    padding: 12px 20px;
+    background: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    flex-wrap: wrap;
+}
+
+.history-page .history-filters .date-picker-wrapper,
+.history-page .history-filters .btn {
+    margin: 0 !important;
+}
+
+.readonly-field {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
+    color: #555;
+    border-color: #ddd;
+}
+
+/* History Page Layout */
+.history-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    background-color: #f8f9fa;
+}
+
+.history-table-wrapper {
+    flex: 1;
+    overflow: auto;
+    padding: 0 20px 20px 20px;
+}
+
+/* History Table Columns - 11 cols */
+.history-table-wrapper .modern-table th:nth-child(1), .history-table-wrapper .modern-table td:nth-child(1) { width: 80px; }
+.history-table-wrapper .modern-table th:nth-child(2), .history-table-wrapper .modern-table td:nth-child(2) { width: 90px; }
+.history-table-wrapper .modern-table th:nth-child(3), .history-table-wrapper .modern-table td:nth-child(3) { width: 120px; }
+.history-table-wrapper .modern-table th:nth-child(4), .history-table-wrapper .modern-table td:nth-child(4) { width: 120px; text-align: center; }
+.history-table-wrapper .modern-table th:nth-child(5), .history-table-wrapper .modern-table td:nth-child(5) { width: 120px; }
+.history-table-wrapper .modern-table th:nth-child(6), .history-table-wrapper .modern-table td:nth-child(6) { width: 120px; }
+.history-table-wrapper .modern-table th:nth-child(7), .history-table-wrapper .modern-table td:nth-child(7) { width: 100px; }
+.history-table-wrapper .modern-table th:nth-child(8), .history-table-wrapper .modern-table td:nth-child(8) { width: 350px; min-width: 350px; }
+.history-table-wrapper .modern-table th:nth-child(9), .history-table-wrapper .modern-table td:nth-child(9) { width: 120px; }
+.history-table-wrapper .modern-table th:nth-child(10), .history-table-wrapper .modern-table td:nth-child(10) { width: 80px; text-align: center; }
+.history-table-wrapper .modern-table th:nth-child(11), .history-table-wrapper .modern-table td:nth-child(11) { width: 300px; min-width: 300px; }
+
+/* Resizable Columns */
+#users-table th {
+    position: relative;
+    min-width: 50px;
+}
+
+.resizer {
+    background-color: transparent; 
+    z-index: 100;
+}
+
+.resizer:hover, .resizing {
+    background-color: #007bff; 
+    opacity: 1;
+}
+
+/* Admin Assigned Column Highlight */
+/* Admin Assigned Column Highlight */
+.admin-column, .admin-column textarea {
+}
+
+th.admin-column {
+    color: white; 
+}
+
+.admin-badge {
+    background: rgba(255,255,255,0.2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    margin-left: 5px;
+    vertical-align: middle;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Note Cell */
+.note-cell {
+    white-space: pre-wrap;
+    font-style: italic;
+    color: #555;
+    overflow: auto;
+    min-height: 20px;
+    max-height: 200px;
+    display: block; 
 }

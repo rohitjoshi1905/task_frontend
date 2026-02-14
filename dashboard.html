@@ -4,10 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JRS INNOVATION LLC - Task Planner</title>
-    <link rel="stylesheet" href="css/style.css">
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <link rel="stylesheet" href="css/style.css?v=18">
     
     <script src="js/config.js"></script>
     <script src="js/api.js"></script>
@@ -65,18 +62,18 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="f-website">Assign Website</label>
-                    <textarea id="f-website" rows="2" placeholder="Enter website name..."></textarea>
+                    <label for="f-website">Assign Website (Admin Only)</label>
+                    <textarea id="f-website" rows="2" placeholder="Assigned by Admin..." readonly class="readonly-field"></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label for="f-task-no">Task Assign</label>
-                    <textarea id="f-task-no" rows="2" placeholder="Enter task name..."></textarea>
+                    <label for="f-task-no">Task Assign (Admin Only)</label>
+                    <textarea id="f-task-no" rows="2" placeholder="Assigned by Admin..." readonly class="readonly-field"></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label for="f-other">Other Assign Tasks</label>
-                    <textarea id="f-other" rows="2" placeholder="Enter other tasks..."></textarea>
+                    <label for="f-other">Other Assign Tasks (Admin Only)</label>
+                    <textarea id="f-other" rows="2" placeholder="Assigned by Admin..." readonly class="readonly-field"></textarea>
                 </div>
 
                 <div class="form-group">
@@ -85,8 +82,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="f-additional">Additional</label>
+                    <label for="f-additional">Additional Work</label>
                     <textarea id="f-additional" rows="2" placeholder="Any additional information..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="f-note">Note</label>
+                    <textarea id="f-note" rows="2" placeholder="Add a note..."></textarea>
                 </div>
 
                 <div class="form-actions">
@@ -109,6 +111,6 @@
         </div>
     </div>
 
-    <script src="js/dashboard.js?v=11"></script>
+    <script src="js/dashboard.js?v=12"></script>
 </body>
 </html>

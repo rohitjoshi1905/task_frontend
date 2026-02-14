@@ -3,11 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Users - Task Planner</title>
-    <link rel="stylesheet" href="css/style.css">
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <title>Manage Users and Task Assign - Task Planner</title>
+    <link rel="stylesheet" href="css/style.css?v=20">
     
     <script src="js/config.js"></script>
     <script src="js/api.js"></script>
@@ -19,7 +16,7 @@
         <header>
             <div style="display:flex; align-items:center; gap:10px;">
                 <img src="https://www.gstatic.com/images/branding/product/1x/admin_2020q4_48dp.png" width="30">
-                <h2 id="sheet-title">Manage Users</h2>
+                <h2 id="sheet-title">Manage Users and Task Assign</h2>
             </div>
             
             <div class="toolbar-actions">
@@ -30,14 +27,17 @@
         </header>
 
         <div class="grid-wrapper" style="margin-top: 20px;">
-            <table id="users-table">
+            <table id="users-table" class="modern-table">
                 <thead>
                     <tr>
-                        <th style="width: 20%; text-align:left; padding-left:15px;">Name</th>
-                        <th style="width: 25%; text-align:left; padding-left:15px;">Email</th>
-                        <th style="width: 20%; text-align:left; padding-left:15px;">Password</th>
-                        <th style="width: 20%; text-align:left; padding-left:15px;">UID</th>
-                        <th style="width: 15%; text-align:center;">Action</th>
+                        <th style="width: 15%; text-align:left; padding-left:15px;">Name</th>
+                        <th style="width: 20%; text-align:left; padding-left:15px;">Email</th>
+                        <th style="width: 10%; text-align:left; padding-left:15px;">Password</th>
+                        <!-- Assignment Columns -->
+                        <th class="admin-column" style="width: 15%; text-align:left;">Assign Website <span class="admin-badge">Admin</span></th>
+                        <th class="admin-column" style="width: 15%; text-align:left;">Task Assign <span class="admin-badge">Admin</span></th>
+                        <th class="admin-column" style="width: 15%; text-align:left;">Other Tasks <span class="admin-badge">Admin</span></th>
+                        <th style="width: 10%; text-align:center;">Action</th>
                     </tr>
                 </thead>
                 <tbody id="user-list-body">
@@ -73,8 +73,35 @@
                 <button onclick="createUser()" class="btn btn-primary">Create User</button>
             </div>
         </div>
+    <!-- Assign Task Modal -->
+    <div id="assign-task-modal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:100;">
+        <div class="modal-content" style="max-width: 500px; margin-top: 50px;">
+            <h3 style="margin-top:0;">Manage User & Assign Task</h3>
+            <p>Assigning tasks for <strong id="assign-user-name"></strong> for <strong>Today</strong></p>
+            <input type="hidden" id="assign-user-id">
+            
+            <div class="form-group">
+                <label>Assign Website</label>
+                <textarea id="assign-website" rows="2" style="width:100%; padding:8px; margin-bottom:10px;"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Task Assign</label>
+                <textarea id="assign-task-no" rows="2" style="width:100%; padding:8px; margin-bottom:10px;"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Other Assign Tasks</label>
+                <textarea id="assign-other" rows="2" style="width:100%; padding:8px; margin-bottom:10px;"></textarea>
+            </div>
+            
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top: 15px;">
+                <button onclick="closeModal('assign-task-modal')" class="btn btn-secondary">Cancel</button>
+                <button onclick="saveAssignment()" class="btn btn-primary">Save Assignment</button>
+            </div>
+        </div>
     </div>
 
-    <script src="js/manage_users.js"></script>
+    <script src="js/manage_users.js?v=7"></script>
 </body>
 </html>

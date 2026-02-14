@@ -1,12 +1,7 @@
-// Depends on firebaseConfig from config.js (loaded in HTML)
-
-// Initialize Firebase
-if (typeof firebase !== 'undefined') {
-    firebase.initializeApp(firebaseConfig);
-}
+// Auth utilities - No Firebase dependency
 
 function checkAuth(requiredRole = null) {
-    const token = localStorage.getItem("firebaseToken");
+    const token = localStorage.getItem("authToken");
     const role = localStorage.getItem("userRole");
     
     if (!token) {
@@ -22,19 +17,13 @@ function checkAuth(requiredRole = null) {
 }
 
 function logout() {
-    if (typeof firebase !== 'undefined') {
-        const auth = firebase.auth();
-        auth.signOut().then(() => {
-            clearSession();
-        });
-    } else {
-        clearSession();
-    }
+    clearSession();
 }
 
 function clearSession() {
-    localStorage.removeItem("firebaseToken");
+    localStorage.removeItem("authToken");
     localStorage.removeItem("userRole");
     localStorage.removeItem("userUid");
+    localStorage.removeItem("userName");
     window.location.href = "index.html";
 }
